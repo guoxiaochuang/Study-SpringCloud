@@ -1,0 +1,22 @@
+server:
+  port: 8070
+
+spring:
+    datasource:
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/db-1808?jdbc:mysql://127.0.0.1:3306/db-1808?useUnicode=true&characterEncoding=utf8&autoReconnect=true&allowMultiQueries=true
+        username: root
+        password: root
+
+mybatis:
+  mapUnderscoreToCamelCase: true
+  typeAliasesPackage: com.just.cart.pojo
+  mapperLocations: classpath:mappers/*.xml
+  
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level: 
+    com.just.cart.mapper: debug
