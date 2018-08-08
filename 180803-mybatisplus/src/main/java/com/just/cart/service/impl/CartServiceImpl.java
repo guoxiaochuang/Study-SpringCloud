@@ -14,7 +14,7 @@ import com.github.pagehelper.PageInfo;
 import com.just.cart.mapper.CartMapper;
 import com.just.cart.pojo.Cart;
 import com.just.cart.service.CartService;
-import com.just.common.SysResult;
+import com.just.common.vo.SysResult;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -27,8 +27,8 @@ public class CartServiceImpl implements CartService {
 		try {
 			// 查询这个货物是否已经在本购物车，必须按userid+itemid
 			Map<String, Long> mapParam = new HashMap<String, Long>();
-			mapParam.put("user_id", cart.getUserId());
-			mapParam.put("item_id", cart.getItemId());
+			mapParam.put("userId", cart.getUserId());
+			mapParam.put("itemId", cart.getItemId());
 
 			Integer count = cartMapper.queryByUserIdAndItemId(mapParam);
 			if (count > 0) {
@@ -60,7 +60,6 @@ public class CartServiceImpl implements CartService {
 		EntityWrapper<Cart> wrapper = new EntityWrapper<Cart>();
 		wrapper.setEntity(param);
 		PageHelper.startPage(page, row);
-		PageHelper.startPage(page, row);
 		List<Cart> cartList = cartMapper.selectList(wrapper);
 		PageInfo<Cart> info = new PageInfo<Cart>(cartList);
 		return SysResult.ok(info);
@@ -79,10 +78,10 @@ public class CartServiceImpl implements CartService {
 
 	@Override
 	public SysResult deleteItem(Cart cart) {
-		try{
+		try {
 			cartMapper.deleteItem(cart);
 			return SysResult.ok();
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			return SysResult.build(201, "删除商品失败!");
 		}

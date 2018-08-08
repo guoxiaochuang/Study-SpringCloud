@@ -97,16 +97,26 @@ SpringBoot + MyBatis + MyBatisPlus
 ## （3）创建对象基类：BasePojo
 ```
 package com.just.cart.pojo;
+
 import java.io.Serializable;
 import java.util.Date;
+
 import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.enums.FieldFill;
+
 public class BasePojo implements Serializable{
 	private static final long serialVersionUID = 1L;
 	@TableField(value = "created", fill = FieldFill.INSERT)
 	private Date created;
 	@TableField(value = "updated", fill = FieldFill.INSERT_UPDATE)
 	private Date updated;
+	
+	public Date getCreated() {
+		return created;
+	}
+	public void setCreated(Date created) {
+		this.created = created;
+	}
 	public Date getUpdated() {
 		return updated;
 	}
@@ -119,23 +129,31 @@ public class BasePojo implements Serializable{
 ## （4）创建购物车对象：Cart
 ```
 package com.just.cart.pojo;
+
+import java.util.Date;
+
 import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableName;
 import com.baomidou.mybatisplus.enums.IdType;
+
+@TableName("tb_cart")
 public class Cart extends BasePojo{
 	private static final long serialVersionUID = 1L;
-	@TableField(exist = false) // 数据库表中不存在的字段，需要标识
+
+	//@TableField(exist = false) // 数据库表中不存在的字段，需要标识
+	
 	@TableId(value = "id", type = IdType.AUTO)//主键自增
 	private Long id;
-	@TableField(value = "USER_ID") // 属性和字段映射
+	@TableField("user_id") // 属性和字段映射
 	private Long userId;
-	@TableField(value = "ITEM_ID") // 属性和字段映射
+	@TableField("item_id") // 属性和字段映射
 	private Long itemId;
-	@TableField(value = "ITEM_TITLE") // 属性和字段映射
+	@TableField("item_title") // 属性和字段映射
 	private String itemTitle;
-	@TableField(value = "ITEM_IMAGE") // 属性和字段映射
+	@TableField("item_image") // 属性和字段映射
 	private String itemImage;
-	@TableField(value = "ITEM_PRICE") // 属性和字段映射
+	@TableField("item_price") // 属性和字段映射
 	private Long itemPrice;
 	private Integer num;
 	public Long getId() {
@@ -184,64 +202,77 @@ public class Cart extends BasePojo{
 ```
 ## （5）创建自定义响应结构：SysResult
 ```
-package com.just.common;
+package com.just.common.vo;
+
 /**
  * 
- * 自定义响应结构
+ * @author guoxiaochuang 自定义相应结构
  */
 public class SysResult {
-	/* 响应业务状态
-	 * 200 成功
-	 * 201 错误
-	 * 400 参数错误
+	/*
+	 * 响应业务状态 200 成功 201 错误 400 参数错误
 	 */
 	private Integer status;
 	// 响应消息
 	private String msg;
 	// 响应中的数据
 	private Object data;
-	public SysResult(){
+
+	public SysResult() {
 	}
-	public SysResult(Object data){
+
+	public SysResult(Object data) {
 		this.status = 200;
 		this.msg = "OK";
 		this.data = data;
 	}
-	public SysResult(Integer status, String msg, Object data){
+
+	public SysResult(Integer status, String msg, Object data) {
 		this.status = status;
 		this.msg = msg;
 		this.data = data;
 	}
-	public static SysResult ok(){
+
+	public static SysResult ok() {
 		return new SysResult(null);
 	}
-	public static SysResult ok(Object data){
+
+	public static SysResult ok(Object data) {
 		return new SysResult(data);
 	}
-	public static SysResult build(Integer status, String msg){
+
+	public static SysResult build(Integer status, String msg) {
 		return new SysResult(status, msg, null);
 	}
-	public static SysResult build(Integer status, String msg, Object data){
+
+	public static SysResult build(Integer status, String msg, Object data) {
 		return new SysResult(status, msg, data);
 	}
-	public Boolean isOK(){
+
+	public Boolean isOK() {
 		return this.status == 200;
 	}
+
 	public Integer getStatus() {
 		return status;
 	}
+
 	public void setStatus(Integer status) {
 		this.status = status;
 	}
+
 	public String getMsg() {
 		return msg;
 	}
+
 	public void setMsg(String msg) {
 		this.msg = msg;
 	}
+
 	public Object getData() {
 		return data;
 	}
+
 	public void setData(Object data) {
 		this.data = data;
 	}
@@ -256,10 +287,12 @@ public class SysResult {
 ```
 package com.just.cart.mapper;
 import java.util.Map;
+
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
+
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 import com.just.cart.pojo.Cart;
 @Repository
@@ -281,8 +314,10 @@ public interface CartMapper extends BaseMapper<Cart> {
 ## （7）创建业务层接口：CartService
 ```
 package com.just.cart.service;
+
 import com.just.cart.pojo.Cart;
-import com.just.common.SysResult;
+import com.just.common.vo.SysResult;
+
 public interface CartService {
 	//保存 查询 更新 删除
 	public SysResult save(Cart cart);
@@ -292,14 +327,306 @@ public interface CartService {
 }
 ```
 ## （8）创建业务层接口实现：CartServiceImpl
+
+```
+package com.just.cart.service.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.plugins.pagination.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.just.cart.mapper.CartMapper;
+import com.just.cart.pojo.Cart;
+import com.just.cart.service.CartService;
+import com.just.common.vo.SysResult;
+
+@Service
+public class CartServiceImpl implements CartService {
+
+	@Autowired
+	private CartMapper cartMapper;
+
+	@Override
+	public SysResult save(Cart cart) {
+		try {
+			// 查询这个货物是否已经在本购物车，必须按userid+itemid
+			Map<String, Long> mapParam = new HashMap<String, Long>();
+			mapParam.put("userId", cart.getUserId());
+			mapParam.put("itemId", cart.getItemId());
+
+			Integer count = cartMapper.queryByUserIdAndItemId(mapParam);
+			if (count > 0) {
+				EntityWrapper<Cart> wrapper = new EntityWrapper<Cart>();
+				wrapper.eq("user_id", cart.getUserId());
+				List<Cart> cartList = cartMapper.selectList(wrapper);
+				if (cartList != null && cartList.size() > 0) {
+					Cart oldCart = cartList.get(0);
+					oldCart.setNum(oldCart.getNum() + 1);
+					this.updateNum(oldCart);
+				}
+				return SysResult.build(202, "该商品已经存在购物车中！");
+			} else {
+				cart.setCreated(new Date());
+				cart.setUpdated(cart.getCreated());
+				cartMapper.insert(cart);
+				return SysResult.ok();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return SysResult.build(201, "添加商品到购物车失败!");
+		}
+	}
+
+	@Override
+	public SysResult query(Long userId, Integer page, Integer row) {
+		Cart param = new Cart();
+		param.setUserId(userId);
+		EntityWrapper<Cart> wrapper = new EntityWrapper<Cart>();
+		wrapper.setEntity(param);
+		PageHelper.startPage(page, row);
+		List<Cart> cartList = cartMapper.selectList(wrapper);
+		PageInfo<Cart> info = new PageInfo<Cart>(cartList);
+		return SysResult.ok(info);
+	}
+
+	@Override
+	public SysResult updateNum(Cart cart) {
+		try {
+			cartMapper.updateNum(cart);
+			return SysResult.ok();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return SysResult.build(201, "更新商品数量错误! " + cart.getItemId());
+		}
+	}
+
+	@Override
+	public SysResult deleteItem(Cart cart) {
+		try {
+			cartMapper.deleteItem(cart);
+			return SysResult.ok();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return SysResult.build(201, "删除商品失败!");
+		}
+	}
+}
+```
 ## （9）创建控制层控制类：CartController
+
+```
+package com.just.cart.controller;
+
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.just.cart.pojo.Cart;
+import com.just.cart.service.CartService;
+import com.just.common.vo.SysResult;
+
+@RestController
+@RequestMapping("/cart")
+public class CartController {
+
+	@Autowired
+	private CartService cartService;
+
+	@RequestMapping("/save")
+	public SysResult save(Cart cart) {
+		return cartService.save(cart);
+	}
+
+	@RequestMapping("/query/{userId}")
+	public SysResult query(@PathVariable Long userId, @RequestParam(value = "page",defaultValue="1") Integer page,@RequestParam(value = "rows", defaultValue="20")Integer row){
+		return cartService.query(userId, page, row);
+	}
+	
+	@RequestMapping("/update/num/{userId}/{itemId}")
+	public SysResult update(@PathVariable Long userId,@PathVariable Long itemId, @PathVariable Integer num){
+		Cart cart = new Cart();
+		cart.setUserId(userId);
+		cart.setItemId(itemId);
+		cart.setNum(num);
+		cart.setUpdated(new Date());
+		return cartService.updateNum(cart);
+	}
+	@RequestMapping("/delete/{userId}/{itemId}")
+	public SysResult delete(@PathVariable Long userId,@PathVariable Long itemId){
+		Cart cart = new Cart();
+		cart.setUserId(userId);
+		cart.setItemId(itemId);
+		return cartService.deleteItem(cart);
+	}
+}
+```
 ## （10）配置application.yml文件
+
+```
+server:
+  port: 8070
+
+spring:
+    datasource:
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/db-1808?jdbc:mysql://127.0.0.1:3306/db-1808?useUnicode=true&characterEncoding=utf8&autoReconnect=true&allowMultiQueries=true
+        username: root
+        password: root
+
+mybatis:
+  mapUnderscoreToCamelCase: true
+  typeAliasesPackage: com.just.cart.pojo
+  mapperLocations: classpath:mappers/*.xml
+  
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level: 
+    com.just.cart.mapper: debug
+```
 ## （11）配置日志文件：log4j.properties
+
+```
+log4j.rootLogger=DEBUG, Console
+#Console
+log4j.appender.Console=org.apache.log4j.ConsoleAppender
+log4j.appender.Console.layout=org.apache.log4j.PatternLayout
+log4j.appender.Console.layout.ConversionPattern=%d [%t] %-5p [%c] - %m%n
+log4j.logger.java.sql.ResultSet=INFO
+log4j.logger.org.apache=INFO
+log4j.logger.java.sql.Connection=DEBUG
+log4j.logger.java.sql.Statement=DEBUG
+log4j.logger.java.sql.PreparedStatement=DEBUG
+```
 ## （12）创建启动类：RunApp
+
+```
+package com.just;
+
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+@MapperScan("com.just.cart.mapper")	// 扫描MyBatis接口文件
+public class RunApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(RunApplication.class, args);
+	}
+
+}
+```
 ## （13）模拟Post请求工具类
+
+```
+package com.just.post;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+import org.junit.Test;
+
+public class HttpClientPost {
+	@Test
+	public void form() throws Exception {
+		String url = "http://localhost:8070/cart/save";
+		for (int i = 0; i < 30; i++) {
+			Map<String, String> paramMap = new HashMap<String, String>();
+			paramMap.put("userId", "5");
+			paramMap.put("itemId", ""+i);
+			paramMap.put("itemTitle", "某商品 超值 物美价廉");
+			paramMap.put("itemPrice", "100");
+			paramMap.put("itemImage", "image");
+			paramMap.put("num", "1");
+			String result = httpPostWithForm(url, paramMap);
+			System.out.println(result);
+		}
+	}
+
+	public static String httpPostWithForm(String url, Map<String, String> paramMap) throws Exception {
+		HttpPost httpPost = new HttpPost(url);
+		CloseableHttpClient client = HttpClients.createDefault();
+		String respContent = null;
+		List<BasicNameValuePair> pairList = new ArrayList<BasicNameValuePair>();
+		for (Map.Entry<String, String> entry : paramMap.entrySet()) {
+			// String key = entry.getKey();
+			// String value = entry.getValue();
+			// BasicNameValuePair pair = new BasicNameValuePair(key, value);
+			// pairList.add(pair);
+			pairList.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+		}
+		httpPost.setEntity(new UrlEncodedFormEntity(pairList, "utf-8"));
+		HttpResponse resp = client.execute(httpPost);
+		if (resp.getStatusLine().getStatusCode() == 200) {
+			HttpEntity he = resp.getEntity();
+			respContent = EntityUtils.toString(he, "utf-8");
+		}
+		return respContent;
+	}
+
+	@Test
+	public void json() throws Exception {
+		String url = "http://localhost:8070/cart/query/5?page=1&row1";
+		String result = httpPostWithJSON(url);
+		System.out.println(result);
+	}
+
+	public static String httpPostWithJSON(String url) throws Exception {
+		HttpPost httpPost = new HttpPost(url);
+		CloseableHttpClient client = HttpClients.createDefault();
+		String respContent = null;
+		JSONObject jsonParam = new JSONObject();
+		jsonParam.put("name", "admin");
+		jsonParam.put("pass", "123456");
+		StringEntity entity = new StringEntity(jsonParam.toString(), "utf-8"); // 解决中文乱码问题
+		entity.setContentEncoding("utf-8");
+		entity.setContentType("application/json");
+		httpPost.setEntity(entity);
+
+		HttpResponse resp = client.execute(httpPost);
+		if (resp.getStatusLine().getStatusCode() == 200) {
+			HttpEntity he = resp.getEntity();
+			respContent = EntityUtils.toString(he, "UTF-8");
+		}
+		return respContent;
+	}
+}
+```
 
 ## （14）测试验证
 ```
-http://localhost:8070/cart/query/1
-
+查询：
+	http://localhost:8070/cart/query/1
+修改数量：
+	http://localhost:8070/cart/update/num/1/2/3
+删除购物车信息：
+	http://localhost:8070/cart/delete/4/1
+添加信息：
+	调用HttpClientPost.form测试方法添加数据。
 ```

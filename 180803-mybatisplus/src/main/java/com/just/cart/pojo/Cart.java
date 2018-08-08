@@ -15,15 +15,15 @@ public class Cart extends BasePojo{
 	
 	@TableId(value = "id", type = IdType.AUTO)//主键自增
 	private Long id;
-	@TableField(value = "USER_ID") // 属性和字段映射
+	@TableField("user_id") // 属性和字段映射
 	private Long userId;
-	@TableField(value = "ITEM_ID") // 属性和字段映射
+	@TableField("item_id") // 属性和字段映射
 	private Long itemId;
-	@TableField(value = "ITEM_TITLE") // 属性和字段映射
+	@TableField("item_title") // 属性和字段映射
 	private String itemTitle;
-	@TableField(value = "ITEM_IMAGE") // 属性和字段映射
+	@TableField("item_image") // 属性和字段映射
 	private String itemImage;
-	@TableField(value = "ITEM_PRICE") // 属性和字段映射
+	@TableField("item_price") // 属性和字段映射
 	private Long itemPrice;
 	private Integer num;
 	public Long getId() {
@@ -67,9 +67,5 @@ public class Cart extends BasePojo{
 	}
 	public void setNum(Integer num) {
 		this.num = num;
-	}
-	public void setCreated(Date date) {
-		// TODO Auto-generated method stub
-		
 	}
 }

@@ -1,7 +1,7 @@
 package com.just.cart.service;
 
 import com.just.cart.pojo.Cart;
-import com.just.common.SysResult;
+import com.just.common.vo.SysResult;
 
 public interface CartService {
 	//保存 查询 更新 删除

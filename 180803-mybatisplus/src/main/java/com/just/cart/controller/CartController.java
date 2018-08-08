@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.just.cart.pojo.Cart;
 import com.just.cart.service.CartService;
-import com.just.common.SysResult;
+import com.just.common.vo.SysResult;
 
 @RestController
 @RequestMapping("/cart")
@@ -29,7 +29,7 @@ public class CartController {
 		return cartService.query(userId, page, row);
 	}
 	
-	@RequestMapping("/update/num/{userId}/{itemId}")
+	@RequestMapping("/update/num/{userId}/{itemId}/{num}")
 	public SysResult update(@PathVariable Long userId,@PathVariable Long itemId, @PathVariable Integer num){
 		Cart cart = new Cart();
 		cart.setUserId(userId);

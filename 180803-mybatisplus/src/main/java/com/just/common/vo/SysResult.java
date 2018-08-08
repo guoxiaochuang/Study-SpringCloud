@@ -1,53 +1,52 @@
-package com.just.common;
+package com.just.common.vo;
 
 /**
  * 
- * @author guoxiaochuang
- * 自定义相应结构
+ * @author guoxiaochuang 自定义相应结构
  */
 public class SysResult {
 
 	/*
-	 * 响应业务状态
-	 * 200 成功
-	 * 201 错误
-	 * 400 参数错误
+	 * 响应业务状态 200 成功 201 错误 400 参数错误
 	 */
 	private Integer status;
 	// 响应消息
 	private String msg;
 	// 响应中的数据
 	private Object data;
-	
-	public SysResult(){
+
+	public SysResult() {
 	}
-	
-	public SysResult(Object data){
+
+	public SysResult(Object data) {
 		this.status = 200;
 		this.msg = "OK";
 		this.data = data;
 	}
-	
-	public SysResult(Integer status, String msg, Object data){
+
+	public SysResult(Integer status, String msg, Object data) {
 		this.status = status;
 		this.msg = msg;
 		this.data = data;
 	}
-	
-	public static SysResult ok(){
+
+	public static SysResult ok() {
 		return new SysResult(null);
 	}
-	public static SysResult ok(Object data){
+
+	public static SysResult ok(Object data) {
 		return new SysResult(data);
 	}
-	public static SysResult build(Integer status, String msg){
+
+	public static SysResult build(Integer status, String msg) {
 		return new SysResult(status, msg, null);
 	}
-	public static SysResult build(Integer status, String msg, Object data){
+
+	public static SysResult build(Integer status, String msg, Object data) {
 		return new SysResult(status, msg, data);
 	}
-	
-	public Boolean isOK(){
+
+	public Boolean isOK() {
 		return this.status == 200;
 	}
 
