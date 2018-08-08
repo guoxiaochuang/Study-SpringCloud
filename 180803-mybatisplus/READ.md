@@ -1,4 +1,9 @@
 # SpringBoot+MyBatis+MyBatisPlus整合
+
+```
+购物车功能实现
+```
+
 - 技术栈
 
 ```
@@ -15,11 +20,15 @@ SpringBoot + MyBatis + MyBatisPlus
 创建脚本所在位置：./脚本/tb_cart.sql
 ```
 - 创建工程步骤：
+
 ## （1）创建一个Maven工程
+
 ```
 创建Maven工程，创建simple project，类型为jar
 ```
+
 ## （2）配置pom.xml文件
+
 ```
 1、添加parent配置
 2、修改properties相关配置：编码、jdk版本等
@@ -94,7 +103,9 @@ SpringBoot + MyBatis + MyBatisPlus
 	</dependencies>
 </project>
 ```
+
 ## （3）创建对象基类：BasePojo
+
 ```
 package com.just.cart.pojo;
 
@@ -127,6 +138,7 @@ public class BasePojo implements Serializable{
 ```
 
 ## （4）创建购物车对象：Cart
+
 ```
 package com.just.cart.pojo;
 
@@ -200,7 +212,9 @@ public class Cart extends BasePojo{
 	}
 }
 ```
+
 ## （5）创建自定义响应结构：SysResult
+
 ```
 package com.just.common.vo;
 
@@ -278,9 +292,13 @@ public class SysResult {
 	}
 }
 ```
+
 ## （6）创建持久层接口：CartMapper
+
 ```
-继承MybatisPlus提供的BaseMapper，它会自动产生SQL语句。采用注解开发方式，SQL直接写在方法上面。特殊方法通过自定义接口实现CartMapper，通用的方法通过BaseMapper实现。这里的方法和业务接口的方法不一致，业务接口中的部分方法基类BaseMapper已经实现，其他方法按业务需要规划。
+继承MybatisPlus提供的BaseMapper，它会自动产生SQL语句。采用注解开发方式，SQL直接写在方法上面。
+特殊方法通过自定义接口实现CartMapper，通用的方法通过BaseMapper实现。
+这里的方法和业务接口的方法不一致，业务接口中的部分方法基类BaseMapper已经实现，其他方法按业务需要规划。
 ```
 > 代码如下
 
@@ -311,7 +329,9 @@ public interface CartMapper extends BaseMapper<Cart> {
 	public void deleteItem(Cart cart);
 }
 ```
+
 ## （7）创建业务层接口：CartService
+
 ```
 package com.just.cart.service;
 
@@ -326,6 +346,7 @@ public interface CartService {
 	public SysResult deleteItem(Cart cart);
 }
 ```
+
 ## （8）创建业务层接口实现：CartServiceImpl
 
 ```
@@ -419,6 +440,7 @@ public class CartServiceImpl implements CartService {
 	}
 }
 ```
+
 ## （9）创建控制层控制类：CartController
 
 ```
@@ -471,6 +493,7 @@ public class CartController {
 	}
 }
 ```
+
 ## （10）配置application.yml文件
 
 ```
@@ -497,6 +520,7 @@ logging:
   level: 
     com.just.cart.mapper: debug
 ```
+
 ## （11）配置日志文件：log4j.properties
 
 ```
@@ -511,6 +535,7 @@ log4j.logger.java.sql.Connection=DEBUG
 log4j.logger.java.sql.Statement=DEBUG
 log4j.logger.java.sql.PreparedStatement=DEBUG
 ```
+
 ## （12）创建启动类：RunApp
 
 ```
@@ -530,6 +555,7 @@ public class RunApplication {
 
 }
 ```
+
 ## （13）模拟Post请求工具类
 
 ```
@@ -620,6 +646,7 @@ public class HttpClientPost {
 ```
 
 ## （14）测试验证
+
 ```
 查询：
 	http://localhost:8070/cart/query/1
