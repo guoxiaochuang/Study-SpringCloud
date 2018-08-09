@@ -1,0 +1,9 @@
+server:
+  port: 8841
+spring:
+  application:
+    name: consumer-feign-hystrix
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://user:password123@localhost:8801/eureka
