@@ -1,0 +1,17 @@
+server:
+  port: 8801
+security:
+  basic:
+    enabled: true
+  user:
+    name: user
+    password: password123
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://user:password123@localhost:8801/eureka
+logging:
+  level:
+    root: INFO  
